@@ -1,0 +1,44 @@
+{
+  "name": "MoviesBazar",
+  "headers": {
+    "Referer": "https://www.moviesbazar.media/"
+  },
+  "steps": [
+    {
+      "id": "search",
+      "method": "POST",
+      "op": "fetch",
+      "url": "https://server.moviesbazar.media/api/v1/movies/search?q={query}"
+    },
+    {
+      "from": "search",
+      "id": "siteImdb",
+      "op": "jsonVar",
+      "path": "moviesData.0.imdbId"
+    },
+    {
+      "id": "watch",
+      "op": "fetch",
+      "url": "https://www.moviesbazar.media/watch/movie/x/{siteImdb|numeric}"
+    },
+    {
+      "from": "watch",
+      "id": "watchU",
+      "op": "unescape"
+    },
+    {
+      "anchor": "\"imdbId\":\"{siteImdb}\"",
+      "from": "watchU",
+      "id": "record",
+      "length": 12000,
+      "op": "window"
+    },
+    {
+      "from": "record",
+      "op": "streamsRegex",
+      "pattern": "\"source\":\"(https?://[^\"]+?\\.(?:m3u8|mp4)[^\"]*)\"",
+      "title": "{title} ({year})",
+      "urlGroup": 1
+    }
+  ]
+}
