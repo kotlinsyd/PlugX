@@ -81,19 +81,6 @@
     },
     {
       "author": "Nuvio Team",
-      "description": "UHD Movies streaming with multiple resolution",
-      "enabled": true,
-      "filename": "providers/uhdmovies.js",
-      "id": "uhdmovies",
-      "name": "UHDMovies",
-      "supportedTypes": [
-        "movie",
-        "tv"
-      ],
-      "version": "1.0.0"
-    },
-    {
-      "author": "Nuvio Team",
       "description": "Multi Lang provider",
       "enabled": true,
       "filename": "providers/castle.js",
