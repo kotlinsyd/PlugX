@@ -1,0 +1,149 @@
+{
+  "name": "PlugX",
+  "scrapers": [
+    {
+      "author": "Nuvio Team",
+      "description": "4KHDHub direct links",
+      "enabled": true,
+      "filename": "providers/4khdhub.js",
+      "id": "4khdhub",
+      "name": "4KHDHub",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper \u2014 streams from Dexter, no server involved.",
+      "enabled": true,
+      "filename": "providers/dexter.js",
+      "id": "dexter",
+      "name": "Dexter",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "wooodyhood",
+      "description": "Movies and TV series in English & French (dubbed/subtitled)",
+      "enabled": true,
+      "filename": "providers/movix.js",
+      "id": "movix",
+      "name": "Movix VF",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Streaming links from netmirror.",
+      "enabled": true,
+      "filename": "providers/netmirror.js",
+      "id": "netmirror",
+      "name": "NetMirror",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "wooodyhood",
+      "description": "Films and series in French (VF) / subtitled French (VOSTFR) / multi-language (MULTI) from purstream.art.",
+      "enabled": true,
+      "filename": "providers/purstream.js",
+      "id": "purstream",
+      "name": "Purstream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Reanime anime streaming with automated AniList mapping and subtitle support",
+      "enabled": true,
+      "filename": "providers/reanime.js",
+      "id": "reanime",
+      "name": "Reanime",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "UHD Movies streaming with multiple resolution",
+      "enabled": true,
+      "filename": "providers/uhdmovies.js",
+      "id": "uhdmovies",
+      "name": "UHDMovies",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Multi Lang provider",
+      "enabled": true,
+      "filename": "providers/castle.js",
+      "id": "castle",
+      "name": "\ud83c\udff0 Castle",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "VidRock - 1080p 480p and 360p",
+      "enabled": true,
+      "filename": "providers/vidrock.js",
+      "id": "vidrock",
+      "name": "\ud83e\udea8 VidRock",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "MoviesDrive streaming with HubCloud and Google Drive extraction",
+      "enabled": true,
+      "filename": "providers/moviesdrive.js",
+      "id": "moviesdrive",
+      "name": "MoviesDrive",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper \u2014 streams from Mapple, no server involved.",
+      "enabled": true,
+      "filename": "providers/mapple.js",
+      "id": "mapple",
+      "name": "Mapple",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    }
+  ],
+  "version": "1.0.0"
+}
