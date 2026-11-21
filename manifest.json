@@ -155,7 +155,10 @@
         "tv"
       ],
       "enabled": true
-    }
+    },
+    {"author": "Public repo", "description": "JS plug, unmodified from its public providers repo.", "enabled": true, "filename": "providers/vixsrc.js", "id": "vixsrc", "name": "Vixsrc", "supportedTypes": ["movie", "tv"], "version": "1.0.0"},
+    {"author": "Plavio", "description": "Rule plug: MoviesBazar search, then the title's own page for its direct and download links.", "enabled": true, "filename": "providers/moviesbazar.json", "id": "moviesbazar", "kind": "rule", "name": "MoviesBazar", "supportedTypes": ["movie"], "version": "1.0.2"},
+    {"author": "Plavio", "description": "Rule plug: finds Pixeldrain file links for a title and resolves them through the Pixeldrain API — from your own connection, so host-side IP fences do not apply.", "enabled": true, "filename": "providers/pixeldrain.json", "id": "pixeldrain", "kind": "rule", "name": "Pixeldrain", "supportedTypes": ["movie", "tv"], "version": "1.0.0"}
   ],
   "version": "1.0.0"
 }
