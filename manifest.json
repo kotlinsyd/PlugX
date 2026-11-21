@@ -130,6 +130,31 @@
         "tv"
       ],
       "version": "1.0.0"
+    },
+    {
+      "id": "mallumv",
+      "name": "MalluMV",
+      "description": "Standalone on-device scraper \u2014 streams from MalluMV, no server involved.",
+      "author": "Kotlinsyd",
+      "version": "1.0.0",
+      "filename": "providers/mallumv.js",
+      "supportedTypes": [
+        "movie"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "vidbolt",
+      "name": "VidBolt",
+      "description": "Standalone on-device scraper \u2014 streams from VidBolt, no server involved.",
+      "author": "Kotlinsyd",
+      "version": "1.0.0",
+      "filename": "providers/vidbolt.js",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "enabled": true
     }
   ],
   "version": "1.0.0"
