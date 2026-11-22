@@ -269,6 +269,19 @@
         "tv"
       ],
       "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Hindi/Bollywood movies and Hindi-dubbed series via filmnox.com — direct-download MKV files (480p–2160p).",
+      "enabled": true,
+      "filename": "providers/filmnox.js",
+      "id": "filmnox",
+      "name": "FilmNox",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
     }
   ],
   "version": "1.0.0"
