@@ -282,6 +282,19 @@
         "tv"
       ],
       "version": "1.0.0"
+    },
+    {
+      "author": "Gowaru",
+      "description": "Films et séries VF/VOSTFR via webflix.art (MP4 directs FastFlux + lecteurs Frembed/Zenix).",
+      "enabled": true,
+      "filename": "providers/webflix.js",
+      "id": "webflix",
+      "name": "Webflix",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
     }
   ],
   "version": "1.0.0"
