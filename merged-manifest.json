@@ -1,0 +1,277 @@
+{
+  "name": "PlugX",
+  "scrapers": [
+    {
+      "author": "Nuvio Team",
+      "description": "4KHDHub direct links",
+      "enabled": true,
+      "filename": "providers/4khdhub.js",
+      "id": "4khdhub",
+      "name": "4KHDHub",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper — streams from Dexter, no server involved.",
+      "enabled": true,
+      "filename": "providers/dexter.js",
+      "id": "dexter",
+      "name": "Dexter",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "wooodyhood",
+      "description": "Movies and TV series in English & French (dubbed/subtitled)",
+      "enabled": true,
+      "filename": "providers/movix.js",
+      "id": "movix",
+      "name": "Movix VF",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Streaming links from netmirror.",
+      "enabled": true,
+      "filename": "providers/netmirror.js",
+      "id": "netmirror",
+      "name": "NetMirror",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "wooodyhood",
+      "description": "Films and series in French (VF) / subtitled French (VOSTFR) / multi-language (MULTI) from purstream.art.",
+      "enabled": true,
+      "filename": "providers/purstream.js",
+      "id": "purstream",
+      "name": "Purstream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Reanime anime streaming with automated AniList mapping and subtitle support",
+      "enabled": true,
+      "filename": "providers/reanime.js",
+      "id": "reanime",
+      "name": "Reanime",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Multi Lang provider",
+      "enabled": true,
+      "filename": "providers/castle.js",
+      "id": "castle",
+      "name": "🏰 Castle",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "VidRock - 1080p 480p and 360p",
+      "enabled": true,
+      "filename": "providers/vidrock.js",
+      "id": "vidrock",
+      "name": "🪨 VidRock",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "MoviesDrive streaming with HubCloud and Google Drive extraction",
+      "enabled": true,
+      "filename": "providers/moviesdrive.js",
+      "id": "moviesdrive",
+      "name": "MoviesDrive",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper — streams from Mapple, no server involved.",
+      "enabled": true,
+      "filename": "providers/mapple.js",
+      "id": "mapple",
+      "name": "Mapple",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "id": "mallumv",
+      "name": "MalluMV",
+      "description": "Standalone on-device scraper — streams from MalluMV, no server involved.",
+      "author": "Kotlinsyd",
+      "version": "1.0.0",
+      "filename": "providers/mallumv.js",
+      "supportedTypes": [
+        "movie"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "vidbolt",
+      "name": "VidBolt",
+      "description": "Standalone on-device scraper — streams from VidBolt, no server involved.",
+      "author": "Kotlinsyd",
+      "version": "1.0.0",
+      "filename": "providers/vidbolt.js",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "enabled": true
+    },
+    {
+      "author": "Public repo",
+      "description": "JS plug, unmodified from its public providers repo.",
+      "enabled": true,
+      "filename": "providers/vixsrc.js",
+      "id": "vixsrc",
+      "name": "Vixsrc",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Plavio",
+      "description": "Rule plug: MoviesBazar search, then the title's own page for its direct and download links.",
+      "enabled": true,
+      "filename": "providers/moviesbazar.json",
+      "id": "moviesbazar",
+      "kind": "rule",
+      "name": "MoviesBazar",
+      "supportedTypes": [
+        "movie"
+      ],
+      "version": "1.0.2"
+    },
+    {
+      "author": "Plavio",
+      "description": "Rule plug: finds Pixeldrain file links for a title and resolves them through the Pixeldrain API — from your own connection, so host-side IP fences do not apply.",
+      "enabled": true,
+      "filename": "providers/pixeldrain.json",
+      "id": "pixeldrain",
+      "kind": "rule",
+      "name": "Pixeldrain",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "Bollywood, Hollywood, and South Indian movies, in Dual Language",
+      "enabled": true,
+      "filename": "providers/desiflix.js",
+      "id": "desiflix",
+      "name": "DesiFlix",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "MoOnCrOwN",
+      "description": "En yeni filmlleri güvenli ve hızlı şekilde sunar.",
+      "enabled": true,
+      "filename": "providers/moonvidmodyfilmdizi.js",
+      "id": "moonvidmodyfilmdizi",
+      "name": "MoonVidmodyFilmDizi",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "KennethJYS",
+      "description": "Películas en Latino desde CineCalidad. Vimeos, VOE, StreamWish.",
+      "enabled": true,
+      "filename": "providers/cinecalidad.js",
+      "id": "cinecalidad",
+      "name": "CineCalidad",
+      "supportedTypes": [
+        "movie"
+      ],
+      "version": "1.0.1"
+    },
+    {
+      "author": "KennethJYS",
+      "description": "Streams en Latino desde SeriesMetro. Fastream.",
+      "enabled": true,
+      "filename": "providers/seriesmetro.js",
+      "id": "seriesmetro",
+      "name": "SeriesMetro",
+      "supportedTypes": [
+        "movie"
+      ],
+      "version": "1.0.1"
+    },
+    {
+      "author": "KennethJYS",
+      "description": "Streams en Latino desde HackStore.",
+      "enabled": true,
+      "filename": "providers/hackstore.js",
+      "id": "hackstore",
+      "name": "HackStore",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Gowaru",
+      "description": "Films et séries en streaming HLS via papadustream.club (multi-qualité 360p-1080p, multi-langue).",
+      "enabled": true,
+      "filename": "providers/papadustream.js",
+      "id": "papadustream",
+      "name": "Papadustream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    }
+  ],
+  "version": "1.0.0"
+}
