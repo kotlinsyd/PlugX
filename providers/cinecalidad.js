@@ -53,7 +53,8 @@ var cinecalidad_exports = {};
 __export(cinecalidad_exports, {
   getStreams: () => getStreams
 });
-module.exports = __toCommonJS(cinecalidad_exports);
+if (typeof module !== "undefined" && module.exports) { module.exports = __toCommonJS(cinecalidad_exports); }
+globalThis.getStreams = getStreams;
 var UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 var TIER_MAPS = {
   vimeos: { h: "720p", n: "480p" },
@@ -654,7 +655,41 @@ function dedupeEmbeds(embedUrls) {
   }
   return [...byBase.values()];
 }
-function processEmbed(embedUrl) {
+// House row-format helpers (display-only; same streams, new name/title).
+// Quality "Unknown" is the plug's own "not measured" placeholder — it is
+// dropped, never shown. "4K" normalises to "2160p".
+function houseQuality(q) {
+  if (!q) return "";
+  const s = String(q).trim();
+  if (s === "Unknown") return "";
+  if (s.toLowerCase() === "4k") return "2160p";
+  return s;
+}
+function houseExtFromUrl(url) {
+  const m = String(url || "").match(/\.(m3u8|mp4|mkv|webm)(?:[?#]|$)/i);
+  return m ? m[1].toUpperCase() : "";
+}
+function houseRow(tmdbInfo, plugName, lang, url, rawQuality, headers) {
+  const q = houseQuality(rawQuality);
+  const ext = houseExtFromUrl(url);
+  const t = (tmdbInfo && tmdbInfo.title) || "";
+  const y = (tmdbInfo && tmdbInfo.year) || "";
+  const name = (t + " " + y + " " + plugName + (q ? " " + q : "")).replace(/\s+/g, " ").trim();
+  const parts = [];
+  if (q) parts.push("📺 " + q);
+  if (lang) parts.push("🌐 " + lang);
+  if (ext) parts.push("🎞️ " + ext);
+  const row = {
+    name,
+    title: parts.join("  |  "),
+    url,
+    headers: headers || {}
+  };
+  if (q) row.quality = q;
+  if (lang) row.language = lang;
+  return row;
+}
+function processEmbed(embedUrl, tmdbInfo) {
   return __async(this, null, function* () {
     const serverName = getServerName(embedUrl);
     const start = Date.now();
@@ -669,13 +704,10 @@ function processEmbed(embedUrl) {
         console.log(`[${serverName}] Sin URL final`);
         return null;
       }
-      return {
-        name: "CineCalidad",
-        title: `${result.quality || "Unknown"} \xB7 ${serverName}`,
-        url: result.url,
-        quality: result.quality || "Unknown",
-        headers: result.headers || {}
-      };
+      // Language is Spanish at source level: CineCalidad serves
+      // Spanish audio; the plug records no per-row language tag.
+      // No size and no file name exist for these embed rows.
+      return houseRow(tmdbInfo, "CineCalidad", "Spanish", result.url, result.quality, result.headers);
     } catch (e) {
       return null;
     }
@@ -722,7 +754,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
       }
       // Direct embeds resolve WHILE the intermediate pages are fetched
       // (independent work — they used to run one after the other).
-      const runEmbed = (u) => processEmbed(u).then((st) => st ? __spreadValues(__spreadValues({}, st), { _embed: u }) : null);
+      const runEmbed = (u) => processEmbed(u, tmdbInfo).then((st) => st ? __spreadValues(__spreadValues({}, st), { _embed: u }) : null);
       const [directSettled, midEmbeds] = yield Promise.all([
         Promise.allSettled(directEmbeds.map(runEmbed)),
         fetchIntermediateEmbeds(intermediateUrls)
@@ -733,7 +765,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
       const directBases = new Set(directEmbeds.map((u) => u.split("?")[0]));
       const midUnique = allEmbeds.filter((u) => !directBases.has(u.split("?")[0]));
       const midStreams = (yield Promise.allSettled(
-        midUnique.map(processEmbed)
+        midUnique.map((u) => processEmbed(u, tmdbInfo))
       )).filter((r) => r.status === "fulfilled").map((r) => r.value).filter(Boolean);
       const streams = [...directStreams, ...midStreams].map((st) => {
         const { _embed, ...rest } = st;

@@ -104,6 +104,52 @@ function getIndexQuality(str) {
     return 2160;
   return 1080;
 }
+
+/* ---------------- house row format (display-only) ----------------
+   quality is a NUMBER here (e.g. 1080) — the house format wants the
+   string ("1080p", "2160p" for 4K/UHD). size arrives as a human
+   string off the HubCloud page ("1.2 GB") — parsed to bytes for the
+   size field, human string kept in the title; unparseable/missing
+   size is left out, never guessed. No per-row language, filename or
+   extension is known (HubCloud/GDFlix links carry none), so those
+   parts are left out; the server name rides in the title's ℹ️ part. */
+function qualityLabel(q) {
+  if (!q) return "";
+  if (q >= 2160) return "2160p";
+  return q + "p";
+}
+function parseSizeBytes(s) {
+  const m = String(s || "").match(/([\d.]+)\s*(GB|MB|KB|B)/i);
+  if (!m) return 0;
+  const n = parseFloat(m[1]);
+  const u = m[2].toUpperCase();
+  if (u === "GB") return Math.round(n * 1024 * 1024 * 1024);
+  if (u === "MB") return Math.round(n * 1024 * 1024);
+  if (u === "KB") return Math.round(n * 1024);
+  return Math.round(n);
+}
+function humanSize(bytes) {
+  if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(0) + " MB";
+  return bytes + " B";
+}
+function houseRow(s, cleanTitle, year) {
+  const ql = qualityLabel(s.quality);
+  const bytes = parseSizeBytes(s.size);
+  const parts = [];
+  if (ql) parts.push("📺 " + ql);
+  if (bytes > 0) parts.push("💾 " + humanSize(bytes));
+  parts.push("ℹ️ " + s.name);
+  const row = {
+    name: (cleanTitle + " " + (year || "") + " MoviesDrive" + (ql ? " " + ql : "")).replace(/\s+/g, " ").trim(),
+    title: parts.join("  |  "),
+    url: s.url,
+    provider: "moviesdrive"
+  };
+  if (ql) row.quality = ql;
+  if (bytes > 0) row.size = bytes;
+  return row;
+}
 function extractMdrive(url) {
   return __async(this, null, function* () {
     if (!url)
@@ -309,6 +355,7 @@ function getStreams(tmdbId, mediaType, seasonNum = 1, episodeNum = 1) {
     ]);
     const imdbId = (_a = tmdbData.external_ids) == null ? void 0 : _a.imdb_id;
     const cleanTitle = tmdbData.title || tmdbData.name || "";
+    const year = ((tmdbData.release_date || tmdbData.first_air_date) || "").slice(0, 4);
     let match = null;
     const findMatch = (hits) => {
       if (!hits || !hits.length)
@@ -387,10 +434,7 @@ function getStreams(tmdbId, mediaType, seasonNum = 1, episodeNum = 1) {
           return perServer.flat();
         })));
         for (const streams of movieResults) {
-          allStreams.push(...streams.map((s) => __spreadProps(__spreadValues({}, s), {
-            title: `${cleanTitle} - ${s.name} [${s.quality}p]`,
-            provider: "moviesdrive"
-          })));
+          allStreams.push(...streams.map((s) => houseRow(s, cleanTitle, year)));
         }
       } else {
         const sSlug = String(seasonNum).padStart(2, "0");
@@ -431,10 +475,7 @@ function getStreams(tmdbId, mediaType, seasonNum = 1, episodeNum = 1) {
               return perServer.flat();
             })));
             for (const streams of epResults) {
-              allStreams.push(...streams.map((s) => __spreadProps(__spreadValues({}, s), {
-                title: `${cleanTitle} S${seasonNum}E${episodeNum} - ${s.name} [${s.quality}p]`,
-                provider: "moviesdrive"
-              })));
+              allStreams.push(...streams.map((s) => houseRow(s, cleanTitle, year)));
             }
           }
         }

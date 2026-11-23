@@ -89,6 +89,59 @@ const bytes = {
   }
 };
 
+
+/* House row format (display only — same streams, URLs, order, counts). */
+function houseName(title, year, plug, quality) {
+  var parts = [];
+  if (title) parts.push(title);
+  if (year) parts.push(year);
+  parts.push(plug);
+  if (quality) parts.push(quality);
+  return parts.join(' ');
+}
+function houseTitle(parts) {
+  return parts.filter(function (p) { return !!p; }).join('  |  ');
+}
+function normQuality(q) {
+  if (q == null) return null;
+  var s = String(q).trim();
+  if (!s) return null;
+  if (/^4k$/i.test(s)) return '2160p';
+  if (/^\d{3,4}p$/i.test(s)) return s;
+  if (/^\d{3,4}$/.test(s)) return s + 'p';
+  return null;
+}
+function extOf(url, fallback) {
+  var u = String(url || '').split('?')[0];
+  var m = u.match(/\.([A-Za-z0-9]+)$/);
+  var e = m ? m[1] : (fallback || '');
+  return e ? e.toUpperCase() : null;
+}
+function cleanName(name) {
+  return String(name || '').replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, '').replace(/[\[\]()._-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function parseSize(str) {
+  if (typeof str !== 'string') return null;
+  var m = str.match(/([\d.]+)\s*([KMGT]B)/i);
+  if (!m) return null;
+  var n = parseFloat(m[1]);
+  var u = m[2].toUpperCase();
+  var mult = u === 'KB' ? 1024 : u === 'MB' ? 1024 * 1024 : u === 'GB' ? 1024 * 1024 * 1024 : 1024 * 1024 * 1024 * 1024;
+  return Math.round(n * mult);
+}
+
+function detectLang4k(name) {
+  var s = String(name || '');
+  var found = [];
+  var langs = ['Hindi', 'English', 'Tamil', 'Telugu', 'Malayalam', 'Kannada', 'Punjabi', 'Bengali', 'Marathi'];
+  for (var i = 0; i < langs.length; i++) {
+    if (new RegExp('\\b' + langs[i] + '\\b', 'i').test(s)) found.push(langs[i]);
+  }
+  if (found.length === 0) return null;
+  if (found.length >= 2) return found.join(' + ');
+  if (/\b(Dual|Multi)[- ]?Audio\b/i.test(s)) return 'Multi Audio';
+  return found[0];
+}
 // Fetch Helper
 function fetchText(url, options) {
   options = options || {};
@@ -357,11 +410,25 @@ function getStreams(tmdbId, type, season, episode) {
                 console.log('[4KHDHub] Extracting from HubCloud: ' + sourceResult.url);
                 return extractHubCloud(sourceResult.url, sourceResult.meta).then(function (extractedLinks) {
                   return extractedLinks.map(function (link) {
+                    var q = sourceResult.meta.height ? sourceResult.meta.height + 'p' : null;
+                    var sizeBytes = link.meta.bytes || 0;
+                    var sizeText = sizeBytes > 0 ? bytes.format(sizeBytes) : null;
+                    var lang = detectLang4k(link.meta.title);
+                    var ext = extOf(link.url, link.meta.title);
+                    var fileName = cleanName(link.meta.title);
                     return {
-                      name: '4KHDHub - ' + link.source + (sourceResult.meta.height ? ' ' + sourceResult.meta.height + 'p' : ''),
-                      title: link.meta.title + '\n' + bytes.format(link.meta.bytes || 0),
+                      name: houseName(title, year, '4KHDHub', q),
+                      title: houseTitle([
+                        q ? '📺 ' + q : null,
+                        lang ? '🌐 ' + lang : null,
+                        sizeText ? '💾 ' + sizeText : null,
+                        ext ? '🎞️ ' + ext : null,
+                        fileName ? 'ℹ️ ' + fileName : null
+                      ]),
                       url: link.url,
-                      quality: sourceResult.meta.height ? sourceResult.meta.height + 'p' : undefined,
+                      quality: q || undefined,
+                      size: sizeBytes > 0 ? sizeBytes : undefined,
+                      language: lang || undefined,
                       behaviorHints: {
                         bingeGroup: '4khdhub-' + link.source
                       }

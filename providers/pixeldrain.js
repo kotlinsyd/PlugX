@@ -89,7 +89,23 @@ function qualityOf(text) {
 }
 
 function qualityLabel(q) {
-  return q >= 2160 ? "4K" : q > 0 ? q + "p" : "Unknown";
+  return q >= 2160 ? "2160p" : q > 0 ? q + "p" : "Unknown";
+}
+
+// House row format helpers (display-only): human size for the title
+// line, clean file name for the ℹ️ part (strip extension, dots /
+// underscores / brackets become spaces).
+function humanSize(bytes) {
+  if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(0) + " MB";
+  return bytes + " B";
+}
+
+function cleanName(name) {
+  return String(name || "").replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, "")
+    .replace(/[\[\]()._-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 // One hubdrive link -> its pixeldrain ids (via hubcloud + gamerxyt).
@@ -203,14 +219,30 @@ function getStreams(tmdbId, mediaType, season, episode) {
                 if (!info || info.success !== true) return null;
                 var name = info.name || "";
                 var q = qualityOf(name) || qualityOf(labelById[id]);
-                return {
-                  name: "PixelDrain",
-                  title: (q ? qualityLabel(q) + " " : "") + (name ? name + " • " : "") + "PixelDrain",
+                // House row format (display-only): name carries title,
+                // year, plug and quality; title carries quality, size
+                // (PixelDrain API bytes), extension and clean file
+                // name — each only when really known. "Unknown"
+                // quality and 0/missing size are left out, never shown.
+                // No per-row language is known.
+                var ql = q ? qualityLabel(q) : "";
+                var extM = name.match(/\.([A-Za-z0-9]+)$/);
+                var ext = extM ? extM[1].toUpperCase() : "";
+                var bytes = (typeof info.size === "number" && info.size > 0) ? info.size : 0;
+                var parts = [];
+                if (ql) parts.push("📺 " + ql);
+                if (bytes > 0) parts.push("💾 " + humanSize(bytes));
+                if (ext) parts.push("🎞️ " + ext);
+                if (name) parts.push("ℹ️ " + cleanName(name));
+                var row = {
+                  name: (title + " " + (year || "") + " PixelDrain" + (ql ? " " + ql : "")).replace(/\s+/g, " ").trim(),
                   url: dl,
-                  quality: qualityLabel(q),
-                  size: typeof info.size === "number" ? info.size : 0,
                   headers: PLAYBACK_HEADERS
                 };
+                if (parts.length) row.title = parts.join("  |  ");
+                if (ql) row.quality = ql;
+                if (bytes > 0) row.size = bytes;
+                return row;
               });
             })).then(function (rows) {
               var seenUrl = {}, out = [];
@@ -232,4 +264,5 @@ function getStreams(tmdbId, mediaType, season, episode) {
     });
 }
 
-module.exports = { getStreams };
+if (typeof module !== "undefined" && module.exports) { module.exports = { getStreams }; }
+globalThis.getStreams = getStreams;

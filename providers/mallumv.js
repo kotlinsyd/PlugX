@@ -48,7 +48,15 @@ function qualityOf(label) {
 }
 
 function qualityLabel(q) {
-  return q >= 2160 ? "4K" : q + "p";
+  return q >= 2160 ? "2160p" : q + "p";
+}
+
+// Human size for the title line; bytes for the size field come from
+// sizeBytes() (parsed off the site's own label, e.g. "2.3 GB").
+function humanSize(bytes) {
+  if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(0) + " MB";
+  return bytes + " B";
 }
 
 function sizeBytes(label) {
@@ -115,14 +123,23 @@ function getStreams(tmdbId, mediaType, season, episode) {
                 if (mm) pd = mm[1];
               });
               if (!pd) return null;
-              return {
-                name: "MalluMV",
-                title: qualityLabel(it.quality) + " " + it.label + " • PixelDrain",
+              // House row format (display-only): name carries title,
+              // year, plug and quality; title carries quality + size
+              // when the site label gives one. No per-row language,
+              // filename or extension is known (PixelDrain file id
+              // only), so those parts are left out. size is set only
+              // when the label really carries one (never 0).
+              var ql = qualityLabel(it.quality);
+              var bytes = sizeBytes(it.label);
+              var row = {
+                name: (title + " " + (year || "") + " MalluMV " + ql).replace(/\s+/g, " ").trim(),
+                title: "📺 " + ql + (bytes > 0 ? "  |  💾 " + humanSize(bytes) : ""),
                 url: "https://pixeldrain.dev/api/file/" + pd + "?download",
-                quality: qualityLabel(it.quality),
-                size: sizeBytes(it.label),
+                quality: ql,
                 headers: PLAYBACK_HEADERS
               };
+              if (bytes > 0) row.size = bytes;
+              return row;
             });
           })).then(function (rows) {
             var seen = {};
@@ -144,4 +161,5 @@ function getStreams(tmdbId, mediaType, season, episode) {
     });
 }
 
-module.exports = { getStreams };
+if (typeof module !== "undefined" && module.exports) { module.exports = { getStreams }; }
+globalThis.getStreams = getStreams;

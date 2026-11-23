@@ -66,3 +66,139 @@ if (__provider && __provider.getStreams) {
         self.getStreams = __provider.getStreams;
     }
 }
+
+/* --- PlugX house row format (Batch D, display-only wrapper) ---
+   The bundle's own rows carry no TMDB title/year, so this wrapper does ONE
+   TMDB lookup with the bundle's own public key (the same key the bundle
+   already uses for its own title resolution) and rewrites only
+   name/title/quality/size. Stream URLs, order, counts, headers, type and
+   every fetch the bundle itself makes are untouched. If the TMDB lookup
+   fails, rows keep their old name with the real quality appended.
+   New manifest version: webflix 1.0.1. */
+(function () {
+  var __orig = null;
+  try { __orig = (typeof module !== "undefined" && module.exports && module.exports.getStreams) || (typeof globalThis !== "undefined" && globalThis.getStreams) || null; } catch (e) { __orig = null; }
+  if (typeof __orig !== "function") return;
+  var PLUG_NAME = "Webflix";
+  var TMDB_KEY = "8265bd1679663a7ea12ac168da84d2e8"; // bundle's own public key
+
+  function humanSize(bytes) {
+    if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+    if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(0) + " MB";
+    return bytes + " B";
+  }
+  function cleanName(name) {
+    return String(name || "").replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, "")
+      .replace(/[\[\]()._-]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  // Only a real resolution token counts; "HD"/"Auto"/codec strings are not a
+  // quality. "4K" normalises to "2160p".
+  function realQuality(q) {
+    if (!q) return "";
+    if (/4k/i.test(q)) return "2160p";
+    var m = String(q).match(/(2160p|1440p|1080p|720p|480p|360p)/i);
+    return m ? m[1].toLowerCase() : "";
+  }
+  // Human size string ("1014.66 MB") -> byte number; a plain number passes
+  // through. (The host reads a size string's digits as bytes, so the human
+  // string must never be left in `size`.)
+  function parseSize(v) {
+    if (typeof v === "number" && isFinite(v) && v > 0) return Math.round(v);
+    if (typeof v === "string") {
+      var m = v.match(/([\d.,]+)\s*(TB|GB|MB|KB|B)/i);
+      if (m) {
+        var n = parseFloat(m[1].replace(",", "."));
+        var u = m[2].toUpperCase();
+        var mult = u === "TB" ? 1099511627776 : u === "GB" ? 1073741824 : u === "MB" ? 1048576 : u === "KB" ? 1024 : 1;
+        if (isFinite(n)) return Math.round(n * mult);
+      }
+      var d = v.replace(/\D/g, "");
+      if (d) return parseInt(d, 10);
+    }
+    return undefined;
+  }
+  function extOf(row) {
+    if (row.type === "hls") return "M3U8";
+    if (row.type === "mp4") return "MP4";
+    var m = String(row.url || "").match(/\.(mkv|mp4|m3u8|avi|webm|mpd)(?:[?#]|$)/i);
+    return m ? m[1].toUpperCase() : "";
+  }
+  // Audio variant from the old name/title: VFF/VOSTFR/VF/VO. Falls back to
+  // the row's own language field.
+  function variantOf(row) {
+    var s = (row.name || "") + " " + (row.title || "");
+    var m = s.match(/\b(VOSTFR|VFF|VF|VO)\b/);
+    return m ? m[1] : (row.language || "");
+  }
+  // ℹ️ info: a real filename from the stream URL when it has one, else the
+  // embed-host label from the old title (+ S1E1 for TV rows). No filename
+  // exists for HLS index URLs, so the host label is used instead — it is
+  // the only per-row identifier the bundle knows.
+  function fileInfo(row) {
+    var u = String(row.url || "");
+    var base = "";
+    try { var p = u.split("?")[0].split("#")[0]; base = decodeURIComponent(p.split("/").pop() || ""); } catch (e) { base = ""; }
+    if (/\.(mp4|mkv|avi|webm)$/i.test(base) && !/^index\./i.test(base)) return cleanName(base);
+    var t = String(row.title || "");
+    var hm = t.match(/^\[(?:VOSTFR|VFF|VF|VO)\]\s+([A-Za-z0-9]+)/);
+    var ep = t.match(/\b(S\d+E\d+)\b/);
+    if (hm) return hm[1] + (ep ? " · " + ep[1] : "");
+    var lm = t.match(/Webflix FastFlux\s+(.+)$/) || t.match(/Webflix\s+(.+)$/);
+    if (lm && lm[1] && lm[1] !== "Film") return lm[1];
+    if (ep) return ep[1];
+    return "";
+  }
+  function tmdbMeta(id, type) {
+    var kind = type === "tv" ? "tv" : "movie";
+    var url = "https://api.themoviedb.org/3/" + kind + "/" + id + "?api_key=" + TMDB_KEY;
+    var opts = {};
+    try { if (typeof AbortSignal !== "undefined" && AbortSignal.timeout) opts.signal = AbortSignal.timeout(8000); } catch (e) {}
+    return fetch(url, opts).then(function (r) {
+      if (!r.ok) return null;
+      return r.json().catch(function () { return null; });
+    }).then(function (j) {
+      if (!j) return null;
+      return { title: j.title || j.name || "", year: (j.release_date || j.first_air_date || "").slice(0, 4) };
+    }).catch(function () { return null; });
+  }
+
+  async function getStreams(tmdbId, mediaType, season, episode) {
+    var rows;
+    try { rows = await __orig(tmdbId, mediaType, season, episode); } catch (e) { return []; }
+    if (!rows || !rows.length) return rows || [];
+    var meta = null;
+    try { meta = await tmdbMeta(tmdbId, mediaType); } catch (e) { meta = null; }
+    var title = meta && meta.title ? meta.title : "";
+    var year = meta && meta.year ? meta.year : "";
+    return rows.map(function (r) {
+      var row = Object.assign({}, r);
+      var q = realQuality(r.quality);
+      var lang = variantOf(r);
+      var sz = parseSize(r.size);
+      var ext = extOf(r);
+      var info = fileInfo(r);
+      var parts = [];
+      if (q) parts.push("📺 " + q);
+      if (lang) parts.push("🌐 " + lang);
+      if (sz !== undefined) parts.push("💾 " + humanSize(sz));
+      if (ext) parts.push("🎞️ " + ext);
+      if (info) parts.push("ℹ️ " + info);
+      if (title) {
+        row.name = (title + " " + year + " " + PLUG_NAME + " " + q).replace(/\s+/g, " ").trim();
+      } else if (q) {
+        row.name = String(r.name || PLUG_NAME) + " " + q;
+      }
+      row.title = parts.length ? parts.join("  |  ") : r.title;
+      if (q) row.quality = q; else delete row.quality;
+      if (sz !== undefined) row.size = sz; else if (typeof row.size === "string") delete row.size;
+      return row;
+    });
+  }
+
+  try {
+    if (typeof module !== "undefined" && module.exports) module.exports = Object.assign({}, module.exports, { getStreams: getStreams });
+  } catch (e) {}
+  try { if (typeof globalThis !== "undefined") globalThis.getStreams = getStreams; } catch (e) {}
+  try { if (typeof global !== "undefined") global.getStreams = getStreams; } catch (e) {}
+  try { if (typeof self !== "undefined") self.getStreams = getStreams; } catch (e) {}
+})();

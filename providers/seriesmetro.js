@@ -56,7 +56,8 @@ var seriesmetro_exports = {};
 __export(seriesmetro_exports, {
   getStreams: () => getStreams
 });
-module.exports = __toCommonJS(seriesmetro_exports);
+if (typeof module !== "undefined" && module.exports) { module.exports = __toCommonJS(seriesmetro_exports); }
+globalThis.getStreams = getStreams;
 var UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 function normalizeResolution(width, height) {
   if (width >= 3840 || height >= 2160)
@@ -186,9 +187,10 @@ function getTmdbData(tmdbId, mediaType) {
       return null;
     const title = mediaType === "movie" ? data.title : data.name;
     const originalTitle = mediaType === "movie" ? data.original_title : data.original_name;
+    const year = (data.release_date || data.first_air_date || "").substring(0, 4);
     const name = data === esMx ? "Latino" : "Ingl\xE9s";
     console.log(`[SeriesMetro] TMDB (${name}): "${title}"`);
-    return { title, originalTitle, titleEs };
+    return { title, originalTitle, titleEs, year };
   });
 }
 function findContentUrl(tmdbInfo, mediaType) {
@@ -337,9 +339,39 @@ function getStreams(tmdbId, mediaType, season, episode) {
         targetUrl = epUrl;
       }
       const streams = yield extractStreams(targetUrl, targetUrl, mediaType === "movie" ? found.html : undefined);
+      // House row format (display-only; same streams, new name/title).
+      // The old title was "{quality} · {lang} · Fastream" — language is
+      // recovered from it. Quality "Unknown" is the plug's own "not
+      // measured" placeholder and is dropped, never shown. "4K" -> "2160p".
+      // No size and no file name exist for these Fastream HLS rows.
+      const formatted = streams.map((st) => {
+        const oldParts = String(st.title || "").split(" · ");
+        const lang = oldParts[1] || "";
+        let q = String(st.quality || "").trim();
+        if (q === "Unknown") q = "";
+        if (q.toLowerCase() === "4k") q = "2160p";
+        const extM = String(st.url || "").match(/\.(m3u8|mp4|mkv|webm)(?:[?#]|$)/i);
+        const ext = extM ? extM[1].toUpperCase() : "";
+        const t = tmdbInfo.title || "";
+        const y = tmdbInfo.year || "";
+        const name = (t + " " + y + " SeriesMetro" + (q ? " " + q : "")).replace(/\s+/g, " ").trim();
+        const parts = [];
+        if (q) parts.push("📺 " + q);
+        if (lang) parts.push("🌐 " + lang);
+        if (ext) parts.push("🎞️ " + ext);
+        const row = {
+          name,
+          title: parts.join("  |  "),
+          url: st.url,
+          headers: st.headers || {}
+        };
+        if (q) row.quality = q;
+        if (lang) row.language = lang;
+        return row;
+      });
       const elapsed = ((Date.now() - startTime) / 1e3).toFixed(2);
-      console.log(`[SeriesMetro] \u2713 ${streams.length} streams en ${elapsed}s`);
-      return streams;
+      console.log(`[SeriesMetro] ✓ ${formatted.length} streams en ${elapsed}s`);
+      return formatted;
     } catch (e) {
       console.log(`[SeriesMetro] Error: ${e.message}`);
       return [];

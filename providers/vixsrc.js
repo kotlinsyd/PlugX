@@ -210,11 +210,16 @@ function getStreams(tmdbId, mediaType = "movie", seasonNum = null, episodeNum = 
       }
       const { masterPlaylistUrl, subtitleApiUrl } = streamData;
       const subtitles = yield getSubtitles(subtitleApiUrl);
+      // House row format (display-only): name carries the TMDB title,
+      // year and plug. No real quality is known ("Auto" is not a
+      // quality, so quality and 📺 are left out). The master URL is
+      // built with lang=en, so 🌐 is English; the master playlist is
+      // M3U8. No size or filename is known.
       const nuvioStreams = [{
-        name: "Vixsrc",
-        title: "Auto Quality Stream",
+        name: `${title} ${year || ""} Vixsrc`.replace(/\s+/g, " ").trim(),
+        title: "🌐 English  |  🎞️ M3U8",
         url: masterPlaylistUrl,
-        quality: "Auto",
+        language: "English",
         type: "direct",
         headers: {
           "Referer": BASE_URL,

@@ -476,6 +476,46 @@ function getFlixEmbeds(slug, episodeNumber, language, anilistId) {
 }
 
 // src/reanime/flixcloud.js
+
+/* House row format (display only — same streams, URLs, order, counts). */
+function houseName(title, year, plug, quality) {
+  var parts = [];
+  if (title) parts.push(title);
+  if (year) parts.push(year);
+  parts.push(plug);
+  if (quality) parts.push(quality);
+  return parts.join(' ');
+}
+function houseTitle(parts) {
+  return parts.filter(function (p) { return !!p; }).join('  |  ');
+}
+function normQuality(q) {
+  if (q == null) return null;
+  var s = String(q).trim();
+  if (!s) return null;
+  if (/^4k$/i.test(s)) return '2160p';
+  if (/^\d{3,4}p$/i.test(s)) return s;
+  if (/^\d{3,4}$/.test(s)) return s + 'p';
+  return null;
+}
+function extOf(url, fallback) {
+  var u = String(url || '').split('?')[0];
+  var m = u.match(/\.([A-Za-z0-9]+)$/);
+  var e = m ? m[1] : (fallback || '');
+  return e ? e.toUpperCase() : null;
+}
+function cleanName(name) {
+  return String(name || '').replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, '').replace(/[\[\]()._-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function parseSize(str) {
+  if (typeof str !== 'string') return null;
+  var m = str.match(/([\d.]+)\s*([KMGT]B)/i);
+  if (!m) return null;
+  var n = parseFloat(m[1]);
+  var u = m[2].toUpperCase();
+  var mult = u === 'KB' ? 1024 : u === 'MB' ? 1024 * 1024 : u === 'GB' ? 1024 * 1024 * 1024 : 1024 * 1024 * 1024 * 1024;
+  return Math.round(n * mult);
+}
 function extractFlixCloudDownload(embedUrl) {
   return __async(this, null, function* () {
     try {
@@ -632,12 +672,16 @@ function getStreams(tmdbId, mediaType = "tv", season = null, episode = null) {
             try {
               const directDl = yield extractFlixCloudDownload(dataLink);
               if (directDl && directDl.url) {
+                const q = normQuality(directDl.quality || "1080p");
+                const sizeBytes = parseSize(directDl.size);
+                const sizeText = directDl.size && directDl.size !== "Unknown" ? directDl.size : null;
                 return {
-                  name: `Reanime [${langUpper}] ${serverName} (${directDl.quality || "1080p"})`,
-                  title: streamTitle,
+                  name: houseName(displayTitle, searchYear, "Reanime", q) + " [" + langUpper + "] " + serverName,
+                  title: houseTitle([q ? "📺 " + q : null, "🌐 " + langUpper, sizeText ? "💾 " + sizeText : null, "🎞️ MKV"]),
                   url: directDl.url,
-                  quality: directDl.quality || "1080p",
-                  size: directDl.size || "Unknown",
+                  quality: q || undefined,
+                  size: sizeBytes != null ? sizeBytes : undefined,
+                  language: langUpper,
                   headers: directDl.headers,
                   provider: "reanime",
                   type: "mkv"

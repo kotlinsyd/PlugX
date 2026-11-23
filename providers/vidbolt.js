@@ -32,6 +32,21 @@ function fetchJson(url) {
     .catch(function () { return null; });
 }
 
+/* ---------------- house row format (display-only) ----------------
+   "4K" normalises to "2160p". No TMDB lookup: the API is keyed by
+   TMDB id directly, so no title/year is known and the name stays
+   "VidBolt {Quality}". The resolve API gives a quality per source
+   (no quality is claimed when it gives none). The master playlist
+   carries English + Hindi audio tracks (plug's own chain note), so
+   🌐 is "English + Hindi"; every row is an HLS master (🎞️ M3U8).
+   No file size or filename exists; the server name rides in ℹ️. */
+function normalizeQuality(q) {
+  if (!q) return "";
+  var s = String(q).trim();
+  if (/^4k$/i.test(s)) return "2160p";
+  return s;
+}
+
 function getStreams(tmdbId, mediaType, season, episode) {
   if (!/^\d+$/.test(String(tmdbId || ""))) return Promise.resolve([]);
   var apiType = mediaType === "tv" ? "tv" : "movie";
@@ -51,14 +66,21 @@ function getStreams(tmdbId, mediaType, season, episode) {
       if (!s || !s.url || !/^https:\/\//i.test(s.url)) return;
       if (seen[s.url]) return;
       seen[s.url] = true;
-      var ql = s.quality || "1080p";
-      out.push({
-        name: "VidBolt",
-        title: ql + " • " + (j.stream.server || "orion") + " • HLS",
+      var ql = normalizeQuality(s.quality);
+      var parts = [];
+      if (ql) parts.push("📺 " + ql);
+      parts.push("🌐 English + Hindi");
+      parts.push("🎞️ M3U8");
+      parts.push("ℹ️ " + (j.stream.server || "orion"));
+      var row = {
+        name: ql ? "VidBolt " + ql : "VidBolt",
+        title: parts.join("  |  "),
         url: s.url,
-        quality: ql,
+        language: "English + Hindi",
         headers: PLAYBACK_HEADERS
-      });
+      };
+      if (ql) row.quality = ql;
+      out.push(row);
     });
     return out;
   }).catch(function (err) {
@@ -67,4 +89,5 @@ function getStreams(tmdbId, mediaType, season, episode) {
   });
 }
 
-module.exports = { getStreams };
+if (typeof module !== "undefined" && module.exports) { module.exports = { getStreams }; }
+globalThis.getStreams = getStreams;

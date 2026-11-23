@@ -12,6 +12,9 @@ async function getStreams(tmdbId, mediaType, season, episode) {
         
         const imdbId = d.external_ids ? d.external_ids.imdb_id : null;
         const title = d.title || d.name || "İçerik";
+        // Year: movies use release_date, series use first_air_date
+        // (same TMDB response, no extra fetch).
+        const year = ((mediaType === 'movie' ? d.release_date : d.first_air_date) || '').slice(0, 4);
         
         if (!imdbId || !imdbId.startsWith('tt')) return [];
 
@@ -38,11 +41,17 @@ async function getStreams(tmdbId, mediaType, season, episode) {
             const checkRes = await fetch(targetUrl, { method: 'HEAD' });
             
             if (checkRes.status === 200) {
+                // House row format (display-only). No real resolution is
+                // known — the old quality "Auto" is adaptive, not a
+                // resolution, so no 📺 part. Language is Turkish: this is
+                // a Turkish site and the TMDB lookup above uses tr-TR.
+                // No size, file name or extension exists for this link.
+                const rowName = (title + " " + year + " Vidmody").replace(/\s+/g, " ").trim();
                 return [{
                     url: targetUrl,
-                    name: `Vidmody`,
-                    title: displayTitle,
-                    quality: "Auto",
+                    name: rowName,
+                    title: "🌐 Turkish",
+                    language: "Turkish",
                     headers: {
                         'Referer': 'https://ha.vixolity.com/',
                         'User-Agent': 'Mozilla/5.0'

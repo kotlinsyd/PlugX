@@ -1,4 +1,5 @@
 // 111477 — wraps the official 111477 addon (st.111477.xyz) from the
+// device. PlugX v1.0.3: house row format, batch D.
 // device. The plug asks st. for streams itself, on the user's own
 // connection, and returns the worker links st. mints. No Plavio
 // server is involved at any point.
@@ -46,22 +47,54 @@ function fetchJson(url, headers) {
     .catch(function () { return null; });
 }
 
-/** TMDB id -> IMDb id (tt…), or null. */
+/** TMDB id -> { imdbId, title, year } (title/year feed the house row name), or null. */
 function tmdbImdbId(tmdbId, mediaType) {
   var url = "https://api.themoviedb.org/3/" + (mediaType === "tv" ? "tv" : "movie") + "/" + tmdbId +
     "?api_key=" + TMDB_KEY + "&append_to_response=external_ids";
   return fetchJson(url, { "User-Agent": UA }).then(function (j) {
     if (!j) return null;
-    if (j.imdb_id) return j.imdb_id;
-    if (j.external_ids && j.external_ids.imdb_id) return j.external_ids.imdb_id;
-    return null;
+    var imdbId = j.imdb_id || (j.external_ids && j.external_ids.imdb_id) || null;
+    if (!imdbId) return null;
+    return {
+      imdbId: imdbId,
+      title: j.title || j.name || "",
+      year: (j.release_date || j.first_air_date || "").slice(0, 4)
+    };
   });
 }
 
 /** Quality token exactly as stated in st.'s text ("2160p", "1080p", …). */
 function qualityOf(text) {
-  var m = String(text || "").match(/(2160p|1440p|1080p|720p|480p|360p)/i);
-  return m ? m[1].toLowerCase() : "";
+  var m = String(text || "").match(/(2160p|1440p|1080p|720p|480p|360p|4k)/i);
+  if (!m) return "";
+  return /4k/i.test(m[1]) ? "2160p" : m[1].toLowerCase();
+}
+
+function humanSize(bytes) {
+  if (bytes >= 1024 ** 3) return (bytes / 1024 ** 3).toFixed(1) + " GB";
+  if (bytes >= 1024 ** 2) return (bytes / 1024 ** 2).toFixed(0) + " MB";
+  return bytes + " B";
+}
+
+/** Language tokens in the release name: multi/dub tags, EN/ENG, Hindi, ITA. Else "Original" (port house rule). */
+function detectLanguage(name) {
+  if (/\b(HIN|TAM|TEL|Multi|Dual|DUB|Multi-Audio|MULTI)\b/i.test(name)) return "Multi Audio";
+  if (/\b(EN|ENG|English)\b/i.test(name)) return "English";
+  if (/\bHindi\b/i.test(name)) return "Hindi";
+  if (/\b(ITA|Italian)\b/i.test(name)) return "Italian";
+  return "Original";
+}
+
+function cleanName(name) {
+  return name.replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, "")
+    .replace(/[\[\]()._-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extOf(fileName) {
+  var m = String(fileName || "").match(/\.(mkv|mp4|avi|webm|m3u8)$/i);
+  return m ? m[1].toUpperCase() : "";
 }
 
 /** The "[a11 118.7 GB]" tag -> bytes (1024-based), or undefined. */
@@ -82,11 +115,12 @@ async function getStreams(tmdbId, mediaType, season, episode) {
   try {
     console.log("[111477] Fetching " + mediaType + " " + id +
       (mediaType === "tv" ? " S" + season + "E" + episode : ""));
-    var imdbId = await tmdbImdbId(id, mediaType);
-    if (!imdbId) {
+    var meta = await tmdbImdbId(id, mediaType);
+    if (!meta || !meta.imdbId) {
       console.error("[111477] no IMDb id for TMDB " + id);
       return [];
     }
+    var imdbId = meta.imdbId;
     var path = mediaType === "tv"
       ? "/stream/series/" + imdbId + ":" + season + ":" + episode + ".json"
       : "/stream/movie/" + imdbId + ".json";
@@ -109,11 +143,29 @@ async function getStreams(tmdbId, mediaType, season, episode) {
       }
       if (seen[url]) continue;
       seen[url] = true;
-      var row = { url: url, name: "111477", title: title };
+      // House row format (display-only): name = "{Title} {Year} 111477 {Quality}";
+      // title = quality | language | size | ext | clean file name. The release
+      // name in st.'s title text is the only filename; size/quality are parsed
+      // out of that same text (see qualityOf/sizeOf above), never upgraded.
+      var fileName = title.replace(/\s*\[a11[^\]]*\]\s*$/i, "").trim();
       var q = qualityOf(title);
-      if (q) row.quality = q;
       var sz = sizeOf(title);
+      var lang = detectLanguage(fileName);
+      var ext = extOf(fileName);
+      var parts = [];
+      if (q) parts.push("\uD83D\uDCFA " + q);
+      parts.push("\uD83C\uDF10 " + lang);
+      if (sz !== undefined) parts.push("\uD83D\uDCBE " + humanSize(sz));
+      if (ext) parts.push("\uD83C\uDF9E\uFE0F " + ext);
+      var clean = cleanName(fileName);
+      if (clean) parts.push("\u2139\uFE0F " + clean);
+      var rowName = meta.title
+        ? (meta.title + " " + (meta.year || "") + " 111477 " + (q || "")).replace(/\s+/g, " ").trim()
+        : "111477" + (q ? " " + q : "");
+      var row = { url: url, name: rowName, title: parts.join("  |  ") };
+      if (q) row.quality = q;
       if (sz !== undefined) row.size = sz;
+      if (lang !== "Original") row.language = lang;
       out.push(row);
     }
     console.log("[111477] " + imdbId + " -> " + out.length + " streams");
@@ -124,4 +176,5 @@ async function getStreams(tmdbId, mediaType, season, episode) {
   }
 }
 
-module.exports = { getStreams };
+if (typeof module !== "undefined" && module.exports) { module.exports = { getStreams }; }
+globalThis.getStreams = getStreams;

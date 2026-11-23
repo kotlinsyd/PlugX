@@ -258,6 +258,46 @@ function bypass(mainUrl) {
 }
 
 // src/netmirror/index.js
+
+/* House row format (display only — same streams, URLs, order, counts). */
+function houseName(title, year, plug, quality) {
+  var parts = [];
+  if (title) parts.push(title);
+  if (year) parts.push(year);
+  parts.push(plug);
+  if (quality) parts.push(quality);
+  return parts.join(' ');
+}
+function houseTitle(parts) {
+  return parts.filter(function (p) { return !!p; }).join('  |  ');
+}
+function normQuality(q) {
+  if (q == null) return null;
+  var s = String(q).trim();
+  if (!s) return null;
+  if (/^4k$/i.test(s)) return '2160p';
+  if (/^\d{3,4}p$/i.test(s)) return s;
+  if (/^\d{3,4}$/.test(s)) return s + 'p';
+  return null;
+}
+function extOf(url, fallback) {
+  var u = String(url || '').split('?')[0];
+  var m = u.match(/\.([A-Za-z0-9]+)$/);
+  var e = m ? m[1] : (fallback || '');
+  return e ? e.toUpperCase() : null;
+}
+function cleanName(name) {
+  return String(name || '').replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, '').replace(/[\[\]()._-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function parseSize(str) {
+  if (typeof str !== 'string') return null;
+  var m = str.match(/([\d.]+)\s*([KMGT]B)/i);
+  if (!m) return null;
+  var n = parseFloat(m[1]);
+  var u = m[2].toUpperCase();
+  var mult = u === 'KB' ? 1024 : u === 'MB' ? 1024 * 1024 : u === 'GB' ? 1024 * 1024 * 1024 : 1024 * 1024 * 1024 * 1024;
+  return Math.round(n * mult);
+}
 function getStreams(tmdbId, mediaType, season, episode) {
   return __async(this, null, function* () {
     try {
@@ -272,6 +312,8 @@ function getStreams(tmdbId, mediaType, season, episode) {
       });
       const tmdbData = yield tmdbResp.json();
       const title = mediaType === "tv" ? tmdbData.name : tmdbData.title;
+      const dateStr = mediaType === "tv" ? tmdbData.first_air_date : tmdbData.release_date;
+      const year = dateStr ? parseInt(String(dateStr).slice(0, 4), 10) : null;
       if (!title)
         throw new Error("Could not fetch title from TMDB");
       let platforms = ["netflix", "primevideo", "hotstar", "disney"];
@@ -280,7 +322,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
       }
       for (const platformKey of platforms) {
         try {
-          const streams = yield fetchFromPlatform(platformKey, title, mediaType, season, episode);
+          const streams = yield fetchFromPlatform(platformKey, title, mediaType, season, episode, year);
           if (streams && streams.length > 0)
             return streams;
         } catch (e) {
@@ -292,13 +334,13 @@ function getStreams(tmdbId, mediaType, season, episode) {
     }
   });
 }
-function fetchFromPlatform(platformKey, title, mediaType, season, episode) {
+function fetchFromPlatform(platformKey, title, mediaType, season, episode, year) {
   return __async(this, null, function* () {
     const platform = PLATFORM_MAP[platformKey];
-    return fetchMobileContent(platformKey, platform, title, mediaType, season, episode);
+    return fetchMobileContent(platformKey, platform, title, mediaType, season, episode, year);
   });
 }
-function fetchMobileContent(platformKey, platform, title, mediaType, season, episode) {
+function fetchMobileContent(platformKey, platform, title, mediaType, season, episode, year) {
   return __async(this, null, function* () {
     var _a, _b;
     const base = "https://net52.cc";
@@ -398,11 +440,13 @@ function fetchMobileContent(platformKey, platform, title, mediaType, season, epi
           };
           if (settings.forceHd !== false)
             playbackHeaders.Cookie = "hd=on";
+          const q = normQuality(quality);
+          const ext = extOf(streamUrl, "m3u8");
           streams.push({
-            name: `NetMirror (${platformKey})`,
-            title: mediaType === "tv" ? `${title} S${wantedSeason}E${wantedEpisode} - ${label}` : `${title} - ${label}`,
+            name: houseName(title, year, "NetMirror", q),
+            title: houseTitle([q ? `📺 ${q}` : null, ext ? `🎞️ ${ext}` : null]),
             url: streamUrl,
-            quality,
+            quality: q || undefined,
             headers: playbackHeaders
           });
         }

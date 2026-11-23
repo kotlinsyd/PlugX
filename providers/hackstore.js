@@ -56,7 +56,8 @@ var hackstore_exports = {};
 __export(hackstore_exports, {
   getStreams: () => getStreams
 });
-module.exports = __toCommonJS(hackstore_exports);
+if (typeof module !== "undefined" && module.exports) { module.exports = __toCommonJS(hackstore_exports); }
+globalThis.getStreams = getStreams;
 var UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 var TIER_MAPS = {
   vimeos: { h: "720p", n: "480p" },
@@ -575,7 +576,31 @@ function getPlayers(postId) {
     return (data == null ? void 0 : data.data) || [];
   });
 }
-function processEmbed(embed) {
+// House row-format helpers (display-only; same streams, new name/title).
+// Quality "Unknown" is the plug's own "not measured" placeholder - it is
+// dropped, never shown. "4K" normalises to "2160p".
+function houseQuality(q) {
+  if (!q) return "";
+  var s = String(q).trim();
+  if (s === "Unknown") return "";
+  if (s.toLowerCase() === "4k") return "2160p";
+  return s;
+}
+function houseExtFromUrl(url) {
+  var m = String(url || "").match(/\.(m3u8|mp4|mkv|webm)(?:[?#]|$)/i);
+  return m ? m[1].toUpperCase() : "";
+}
+// The site's own audio labels, as the plug already displayed them
+// ("latino" is what the rows carried before; "LAT" is the plug default).
+function houseLangLabel(raw) {
+  var s = String(raw || "").trim().toLowerCase();
+  if (s === "lat" || s === "latino") return "Latino";
+  if (s === "cast" || s === "castellano" || s === "esp" || s === "espa\u00f1ol") return "Spanish";
+  if (s === "sub" || s === "subtitulado" || s === "vose") return "Spanish Subtitled";
+  if (!s) return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function processEmbed(embed, tmdb) {
   return __async(this, null, function* () {
     try {
       const resolver = getResolver(embed.url);
@@ -588,14 +613,26 @@ function processEmbed(embed) {
       if (!(result == null ? void 0 : result.url)) {
         return null;
       }
-      const streamQuality = result.quality || "Unknown";
-      return {
-        name: "Hackstore",
-        title: `${streamQuality} \xB7 ${embed.lang} \xB7 ${getServerName(embed.url)}`,
-        quality: streamQuality,
+      // No size and no file name exist for these embed rows.
+      const q = houseQuality(result.quality);
+      const ext = houseExtFromUrl(result.url);
+      const lang = houseLangLabel(embed.lang);
+      const t = (tmdb && tmdb.title) || "";
+      const y = (tmdb && tmdb.year) || "";
+      const name = (t + " " + y + " HackStore" + (q ? " " + q : "")).replace(/\s+/g, " ").trim();
+      const parts = [];
+      if (q) parts.push("📺 " + q);
+      if (lang) parts.push("🌐 " + lang);
+      if (ext) parts.push("🎞️ " + ext);
+      const row = {
+        name,
+        title: parts.join("  |  "),
         url: result.url,
         headers: result.headers || {}
       };
+      if (q) row.quality = q;
+      if (lang) row.language = lang;
+      return row;
     } catch (e) {
       console.log(`[Hackstore] Error resolver: ${e.message}`);
       return null;
@@ -635,7 +672,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
       const resolvedPromises = yield Promise.allSettled(
         embeds.map((embed) => {
           const embedToProcess = __spreadProps(__spreadValues({}, embed), { lang: embed.lang || "LAT" });
-          return processEmbed(embedToProcess);
+          return processEmbed(embedToProcess, tmdb);
         })
       );
       const results = resolvedPromises.filter((r) => r.status === "fulfilled" && r.value !== null).map((r) => r.value);

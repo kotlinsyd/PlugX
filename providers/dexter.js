@@ -32,6 +32,46 @@ var PLAYBACK_HEADERS = {
   "Origin": BASE
 };
 
+
+/* House row format (display only — same streams, URLs, order, counts). */
+function houseName(title, year, plug, quality) {
+  var parts = [];
+  if (title) parts.push(title);
+  if (year) parts.push(year);
+  parts.push(plug);
+  if (quality) parts.push(quality);
+  return parts.join(' ');
+}
+function houseTitle(parts) {
+  return parts.filter(function (p) { return !!p; }).join('  |  ');
+}
+function normQuality(q) {
+  if (q == null) return null;
+  var s = String(q).trim();
+  if (!s) return null;
+  if (/^4k$/i.test(s)) return '2160p';
+  if (/^\d{3,4}p$/i.test(s)) return s;
+  if (/^\d{3,4}$/.test(s)) return s + 'p';
+  return null;
+}
+function extOf(url, fallback) {
+  var u = String(url || '').split('?')[0];
+  var m = u.match(/\.([A-Za-z0-9]+)$/);
+  var e = m ? m[1] : (fallback || '');
+  return e ? e.toUpperCase() : null;
+}
+function cleanName(name) {
+  return String(name || '').replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, '').replace(/[\[\]()._-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function parseSize(str) {
+  if (typeof str !== 'string') return null;
+  var m = str.match(/([\d.]+)\s*([KMGT]B)/i);
+  if (!m) return null;
+  var n = parseFloat(m[1]);
+  var u = m[2].toUpperCase();
+  var mult = u === 'KB' ? 1024 : u === 'MB' ? 1024 * 1024 : u === 'GB' ? 1024 * 1024 * 1024 : 1024 * 1024 * 1024 * 1024;
+  return Math.round(n * mult);
+}
 function fetchPlaylist(url) {
   return fetch(url, { redirect: "follow", headers: FETCH_HEADERS })
     .then(function (r) {
@@ -121,11 +161,13 @@ function getStreams(tmdbId, mediaType, season, episode) {
       if (!/^https:\/\//i.test(s.url)) return;
       if (seen[s.url]) return;
       seen[s.url] = true;
+      var q = normQuality(qualityLabel(s.quality));
+      var ext = extOf(s.url, "m3u8");
       out.push({
-        name: "Dexter",
-        title: qualityLabel(s.quality),
+        name: "Dexter" + (q ? " " + q : ""),
+        title: houseTitle([q ? "📺 " + q : null, ext ? "🎞️ " + ext : null]),
         url: s.url,
-        quality: qualityLabel(s.quality),
+        quality: q,
         headers: PLAYBACK_HEADERS
       });
     });

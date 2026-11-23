@@ -37,6 +37,72 @@ function qualityOf(text) {
   return m ? m[1].toLowerCase() : "";
 }
 
+// House row-format helpers (display-only; same streams, new name/title).
+// Size on the site is a human string ("1.35 GB") — parse it to byte number.
+function parseSizeBytes(text) {
+  const m = String(text || "").match(/(\d+(?:\.\d+)?)\s*(gb|mb|kb)/i);
+  if (!m) return null;
+  const v = parseFloat(m[1]);
+  const u = m[2].toLowerCase();
+  if (u === "gb") return Math.round(v * 1024 * 1024 * 1024);
+  if (u === "mb") return Math.round(v * 1024 * 1024);
+  return Math.round(v * 1024);
+}
+
+function humanSize(bytes) {
+  if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(0) + " MB";
+  return bytes + " B";
+}
+
+function cleanName(name) {
+  return String(name || "").replace(/\.(mkv|mp4|avi|webm|m3u8)$/i, "")
+    .replace(/[\[\]()._-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extOf(fname) {
+  const m = String(fname || "").match(/\.(mkv|mp4|avi|webm|m3u8)$/i);
+  return m ? m[1].toUpperCase() : "";
+}
+
+// Language from the release filename; FilmNox is a Hindi/Bollywood index,
+// so a filename with no language marker is still Hindi audio.
+function languageOf(fname) {
+  const t = String(fname || "");
+  if (/\bdual\b/i.test(t)) return "Dual Audio";
+  if (/\bmulti\b/i.test(t)) return "Multi Audio";
+  return "Hindi";
+}
+
+function houseRow(meta, fname, sizeText, href) {
+  const q = qualityOf(fname || href);
+  const sizeBytes = parseSizeBytes(sizeText);
+  const ext = extOf(fname);
+  const lang = languageOf(fname);
+  const clean = cleanName(fname);
+  const title = (meta && meta.title) || "";
+  const year = (meta && meta.year) || "";
+  const name = (title + " " + year + " FilmNox" + (q ? " " + q : "")).replace(/\s+/g, " ").trim();
+  const parts = [];
+  if (q) parts.push("📺 " + q);
+  if (lang) parts.push("🌐 " + lang);
+  if (sizeBytes !== null) parts.push("💾 " + humanSize(sizeBytes));
+  if (ext) parts.push("🎞️ " + ext);
+  if (clean) parts.push("ℹ️ " + clean);
+  const row = {
+    url: href,
+    name: name,
+    title: parts.join("  |  "),
+    headers: { "User-Agent": UA }
+  };
+  if (q) row.quality = q;
+  if (sizeBytes !== null) row.size = sizeBytes;
+  if (lang) row.language = lang;
+  return row;
+}
+
 async function getStreams(tmdbId, mediaType, season, episode) {
   if (mediaType !== "movie" && mediaType !== "tv") return [];
   try {
@@ -88,7 +154,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
         const ym = cand.text.match(/\b(19|20)\d{2}\b/g) || [];
         if (ym.length && ym.indexOf(meta.year) === -1) continue;
       }
-      const streams = await streamsForPost(cand.url, cheerio);
+      const streams = await streamsForPost(cand.url, cheerio, meta);
       if (streams.length) return streams;
     }
     return out;
@@ -98,7 +164,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
   }
 }
 
-async function streamsForPost(best, cheerio) {
+async function streamsForPost(best, cheerio, meta) {
     // 2. Post page -> go_link short link.
     const pres = await fetch(best, { headers: { "User-Agent": UA } });
     if (!pres.ok) return [];
@@ -135,18 +201,12 @@ async function streamsForPost(best, cheerio) {
         $c("a[href*=\"fffast.filesdl.in/zdownload.php\"]").each(function (_, el) {
           const href = $c(el).attr("href");
           if (!href) return;
-          out.push({
-            url: href,
-            name: "FilmNox",
-            title: fname || ("FilmNox " + qualityOf(fname || href)),
-            quality: qualityOf(fname || href),
-            headers: { "User-Agent": UA },
-            size: size || undefined
-          });
+          out.push(houseRow(meta, fname, size, href));
         });
       } catch (e) { continue; }
     }
     return out;
 }
 
-module.exports = { getStreams };
+if (typeof module !== "undefined" && module.exports) { module.exports = { getStreams }; }
+globalThis.getStreams = getStreams;

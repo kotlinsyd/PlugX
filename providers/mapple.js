@@ -286,7 +286,23 @@ function parseMaster(text, baseUrl) {
 }
 
 function qualityLabel(q) {
-  return q === 2160 ? "4K" : q + "p";
+  return q === 2160 ? "2160p" : q + "p";
+}
+
+/* ---------------- house row format (display-only) ----------------
+   name: "Mapple {Quality}" — this plug does no TMDB lookup, so no
+   title/year is known; the server name rides in the title's ℹ️ part
+   (no filename exists for these HLS rows). All rows are HLS masters,
+   so the extension is always M3U8. No size or language is known. */
+function houseRow(v) {
+  var q = qualityLabel(v.quality);
+  return {
+    name: "Mapple " + q,
+    title: "📺 " + q + "  |  🎞️ M3U8  |  ℹ️ " + v.server,
+    url: v.url,
+    quality: q,
+    headers: PLAYBACK_HEADERS
+  };
 }
 
 /* ---------------- per-lane chains: encrypt, then stream ---------------- */
@@ -428,13 +444,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
       return (b.quality - a.quality) || (b.bandwidth - a.bandwidth);
     });
     return found.map(function (v) {
-      return {
-        name: "Mapple",
-        title: v.server + " " + qualityLabel(v.quality),
-        url: v.url,
-        quality: qualityLabel(v.quality),
-        headers: PLAYBACK_HEADERS
-      };
+      return houseRow(v);
     });
   }).catch(function (err) {
     console.error("[Mapple] Error:", err && err.message);
