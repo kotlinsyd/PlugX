@@ -295,6 +295,19 @@
         "tv"
       ],
       "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Streams from the official 111477 addon (st.111477.xyz), resolved on-device — no server involved.",
+      "enabled": true,
+      "filename": "providers/111477.js",
+      "id": "111477",
+      "name": "111477",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
     }
   ],
   "version": "1.0.0"
