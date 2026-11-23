@@ -8,9 +8,12 @@
 //   GET https://st.111477.xyz/config/<cfg>/stream/movie/<imdb>.json
 //   GET https://st.111477.xyz/config/<cfg>/stream/series/<imdb>:<s>:<e>.json
 //   <cfg> = url-safe base64 (no padding) of the public no-key
-//   config "https://a.111477.xyz/::sort=file-desc::limit=3" —
-//   st. returns streams for it without any TMDB key, so none is
-//   embedded here.
+//   config "https://a.111477.xyz/" — the bare base, exactly the
+//   config a default st. install carries (an earlier build used
+//   a "::sort=file-desc::limit=3" suffix borrowed from a watch
+//   config; its rows hung on the owner's phone while the bare
+//   config played, so the suffix is gone). st. returns streams
+//   for it without any TMDB key, so none is embedded here.
 // st. answers {"streams":[{"title":"<release name> [a11 <size>]",
 // "url":"https://<fleet>.workers.dev/d/<32-hex>"}]}. Quality and
 // size exist ONLY as that title text — rows pass the text through
@@ -25,7 +28,7 @@
 // working route to the 111477 catalogue.
 
 var ST_BASE = "https://st.111477.xyz";
-var ST_CONFIG_PLAIN = "https://a.111477.xyz/::sort=file-desc::limit=3";
+var ST_CONFIG_PLAIN = "https://a.111477.xyz/";
 var TMDB_KEY = "439c478a771f35c05022f9feabcca01c";
 var UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
