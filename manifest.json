@@ -68,11 +68,11 @@
     },
     {
       "author": "Nuvio Team",
-      "description": "Anime streaming via ReAnime.",
+      "description": "Reanime anime streaming with automated AniList mapping and subtitle support",
       "enabled": true,
       "filename": "providers/reanime.js",
       "id": "reanime",
-      "name": "ReAnime",
+      "name": "Reanime",
       "supportedTypes": [
         "movie",
         "tv"
@@ -81,24 +81,11 @@
     },
     {
       "author": "Nuvio Team",
-      "description": "Castle — movie & TV streaming.",
+      "description": "Multi Lang provider",
       "enabled": true,
       "filename": "providers/castle.js",
       "id": "castle",
-      "name": "Castle",
-      "supportedTypes": [
-        "movie",
-        "tv"
-      ],
-      "version": "1.0.1"
-    },
-    {
-      "author": "Kotlinsyd",
-      "description": "Searches Vidrock for movies & TV shows and returns streaming links.",
-      "enabled": true,
-      "filename": "providers/vidrock.js",
-      "id": "vidrock",
-      "name": "Vidrock",
+      "name": "🏰 Castle",
       "supportedTypes": [
         "movie",
         "tv"
@@ -107,7 +94,20 @@
     },
     {
       "author": "Nuvio Team",
-      "description": "MoviesDrive direct streaming links for movies and TV shows.",
+      "description": "VidRock - 1080p 480p and 360p",
+      "enabled": true,
+      "filename": "providers/vidrock.js",
+      "id": "vidrock",
+      "name": "🪨 VidRock",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.1"
+    },
+    {
+      "author": "Nuvio Team",
+      "description": "MoviesDrive streaming with HubCloud and Google Drive extraction",
       "enabled": true,
       "filename": "providers/moviesdrive.js",
       "id": "moviesdrive",
@@ -119,8 +119,8 @@
       "version": "2.0.1"
     },
     {
-      "author": "Nuvio Team",
-      "description": "Mapple — Movie & TV streaming.",
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper — streams from Mapple, no server involved.",
       "enabled": true,
       "filename": "providers/mapple.js",
       "id": "mapple",
@@ -132,33 +132,33 @@
       "version": "1.0.1"
     },
     {
-      "author": "Kotlinsyd",
-      "description": "Malayalam movies from MalluMV",
-      "enabled": true,
-      "version": "1.0.2",
-      "filename": "providers/mallumv.js",
       "id": "mallumv",
       "name": "MalluMV",
+      "description": "Standalone on-device scraper — streams from MalluMV, no server involved.",
+      "author": "Kotlinsyd",
+      "version": "1.0.2",
+      "filename": "providers/mallumv.js",
       "supportedTypes": [
         "movie"
-      ]
+      ],
+      "enabled": true
     },
     {
-      "author": "Kotlinsyd",
-      "description": "Streaming links from VidBolt",
-      "enabled": true,
-      "filename": "providers/vidbolt.js",
       "id": "vidbolt",
       "name": "VidBolt",
+      "description": "Standalone on-device scraper — streams from VidBolt, no server involved.",
+      "author": "Kotlinsyd",
+      "version": "1.0.2",
+      "filename": "providers/vidbolt.js",
       "supportedTypes": [
         "movie",
         "tv"
       ],
-      "version": "1.0.2"
+      "enabled": true
     },
     {
-      "author": "Kotlinsyd",
-      "description": "Stream movies and TV shows from Vixsrc",
+      "author": "Public repo",
+      "description": "JS plug, unmodified from its public providers repo.",
       "enabled": true,
       "filename": "providers/vixsrc.js",
       "id": "vixsrc",
@@ -170,34 +170,32 @@
       "version": "1.0.1"
     },
     {
-      "author": "Kotlinsyd",
+      "author": "Plavio",
       "description": "MoviesBazar search, then the title's own page; only links that byte-verify as serving are returned (BunnyCDN HLS, Referer required)",
       "enabled": true,
       "filename": "providers/moviesbazar.js",
       "id": "moviesbazar",
       "name": "MoviesBazar",
       "supportedTypes": [
-        "movie",
-        "tv"
+        "movie"
       ],
       "version": "1.0.4"
     },
     {
-      "author": "Kotlinsyd",
-      "description": "Pixeldrain direct download links",
+      "author": "Plavio",
+      "description": "JS plug: finds Pixeldrain files for a title through HDHub4u posts and confirms each file through the Pixeldrain API before listing it — from your own connection, so host-side IP fences do not apply.",
       "enabled": true,
       "filename": "providers/pixeldrain.js",
       "id": "pixeldrain",
-      "name": "PixelDrain",
+      "name": "Pixeldrain",
       "supportedTypes": [
-        "movie",
-        "tv"
+        "movie"
       ],
       "version": "2.0.2"
     },
     {
       "author": "Nuvio Team",
-      "description": "DesiFlix direct links",
+      "description": "Bollywood, Hollywood, and South Indian movies, in Dual Language",
       "enabled": true,
       "filename": "providers/desiflix.js",
       "id": "desiflix",
@@ -209,12 +207,12 @@
       "version": "1.0.1"
     },
     {
-      "author": "Kotlinsyd",
-      "description": "MoonVid, Mody, FilmDizi, DiziPal: movies & shows in Turkish & English",
+      "author": "MoOnCrOwN",
+      "description": "En yeni filmlleri güvenli ve hızlı şekilde sunar.",
       "enabled": true,
       "filename": "providers/moonvidmodyfilmdizi.js",
       "id": "moonvidmodyfilmdizi",
-      "name": "MoonVid/Mody/FilmDizi",
+      "name": "MoonVidmodyFilmDizi",
       "supportedTypes": [
         "movie",
         "tv"
@@ -222,38 +220,36 @@
       "version": "1.0.1"
     },
     {
-      "author": "Nuvio Team",
-      "description": "CineCalidad — movies and series in Spanish (Latino, Castellano) and subtitled.",
+      "author": "KennethJYS",
+      "description": "Películas en Latino desde CineCalidad. Vimeos, VOE, StreamWish.",
       "enabled": true,
       "filename": "providers/cinecalidad.js",
       "id": "cinecalidad",
       "name": "CineCalidad",
       "supportedTypes": [
-        "movie",
-        "tv"
+        "movie"
       ],
       "version": "1.0.3"
     },
     {
-      "author": "Nuvio Team",
-      "description": "SeriesMetro — Spanish-language movies & series (Castellano / Latino / subtitled).",
+      "author": "KennethJYS",
+      "description": "Streams en Latino desde SeriesMetro. Fastream.",
       "enabled": true,
       "filename": "providers/seriesmetro.js",
       "id": "seriesmetro",
       "name": "SeriesMetro",
       "supportedTypes": [
-        "movie",
-        "tv"
+        "movie"
       ],
       "version": "1.0.3"
     },
     {
-      "author": "Nuvio Team",
-      "description": "Streaming links from Hackstore.",
+      "author": "KennethJYS",
+      "description": "Streams en Latino desde HackStore.",
       "enabled": true,
       "filename": "providers/hackstore.js",
       "id": "hackstore",
-      "name": "Hackstore",
+      "name": "HackStore",
       "supportedTypes": [
         "movie",
         "tv"
@@ -261,12 +257,12 @@
       "version": "1.0.2"
     },
     {
-      "author": "Nuvio Team",
-      "description": "PapaDustream — movies and series in French (VF) / subtitled French (VOSTFR).",
+      "author": "Gowaru",
+      "description": "Films et séries en streaming HLS via papadustream.club (multi-qualité 360p-1080p, multi-langue).",
       "enabled": true,
       "filename": "providers/papadustream.js",
       "id": "papadustream",
-      "name": "PapaDustream",
+      "name": "Papadustream",
       "supportedTypes": [
         "movie",
         "tv"
@@ -274,8 +270,8 @@
       "version": "1.0.1"
     },
     {
-      "author": "Nuvio Team",
-      "description": "FilmNox — movies and TV shows in French (VF/VOSTFR).",
+      "author": "Kotlinsyd",
+      "description": "Hindi/Bollywood movies and Hindi-dubbed series via filmnox.com — direct-download MKV files (480p–2160p).",
       "enabled": true,
       "filename": "providers/filmnox.js",
       "id": "filmnox",
@@ -287,8 +283,8 @@
       "version": "1.0.2"
     },
     {
-      "author": "Nuvio Team",
-      "description": "Webflix — movies and TV shows in French (VF/VOSTFR).",
+      "author": "Gowaru",
+      "description": "Films et séries VF/VOSTFR via webflix.art (MP4 directs FastFlux + lecteurs Frembed/Zenix).",
       "enabled": true,
       "filename": "providers/webflix.js",
       "id": "webflix",
@@ -301,7 +297,7 @@
     },
     {
       "author": "Kotlinsyd",
-      "description": "111477 — movies and TV shows.",
+      "description": "Streams from the official 111477 addon (st.111477.xyz), resolved on-device — no server involved.",
       "enabled": true,
       "filename": "providers/111477.js",
       "id": "111477",
