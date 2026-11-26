@@ -307,6 +307,19 @@
         "tv"
       ],
       "version": "1.0.3"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Italian movies & series (ITA dub) from Altadefinizione, resolved on-device \u2014 no server involved.",
+      "enabled": true,
+      "filename": "providers/altadefinizione.js",
+      "id": "altadefinizione",
+      "name": "Altadefinizione",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
     }
   ],
   "version": "1.0.1"
