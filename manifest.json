@@ -16,7 +16,7 @@
     },
     {
       "author": "Kotlinsyd",
-      "description": "Standalone on-device scraper — streams from Dexter, no server involved.",
+      "description": "Standalone on-device scraper \u2014 streams from Dexter, no server involved.",
       "enabled": true,
       "filename": "providers/dexter.js",
       "id": "dexter",
@@ -85,7 +85,7 @@
       "enabled": true,
       "filename": "providers/castle.js",
       "id": "castle",
-      "name": "🏰 Castle",
+      "name": "\ud83c\udff0 Castle",
       "supportedTypes": [
         "movie",
         "tv"
@@ -98,7 +98,7 @@
       "enabled": true,
       "filename": "providers/vidrock.js",
       "id": "vidrock",
-      "name": "🪨 VidRock",
+      "name": "\ud83e\udea8 VidRock",
       "supportedTypes": [
         "movie",
         "tv"
@@ -120,7 +120,7 @@
     },
     {
       "author": "Kotlinsyd",
-      "description": "Standalone on-device scraper — streams from Mapple, no server involved.",
+      "description": "Standalone on-device scraper \u2014 streams from Mapple, no server involved.",
       "enabled": true,
       "filename": "providers/mapple.js",
       "id": "mapple",
@@ -132,29 +132,29 @@
       "version": "1.0.1"
     },
     {
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper \u2014 streams from MalluMV, no server involved.",
+      "enabled": true,
+      "filename": "providers/mallumv.js",
       "id": "mallumv",
       "name": "MalluMV",
-      "description": "Standalone on-device scraper — streams from MalluMV, no server involved.",
-      "author": "Kotlinsyd",
-      "version": "1.0.2",
-      "filename": "providers/mallumv.js",
       "supportedTypes": [
         "movie"
       ],
-      "enabled": true
+      "version": "1.0.2"
     },
     {
+      "author": "Kotlinsyd",
+      "description": "Standalone on-device scraper \u2014 streams from VidBolt, no server involved.",
+      "enabled": true,
+      "filename": "providers/vidbolt.js",
       "id": "vidbolt",
       "name": "VidBolt",
-      "description": "Standalone on-device scraper — streams from VidBolt, no server involved.",
-      "author": "Kotlinsyd",
-      "version": "1.0.2",
-      "filename": "providers/vidbolt.js",
       "supportedTypes": [
         "movie",
         "tv"
       ],
-      "enabled": true
+      "version": "1.0.2"
     },
     {
       "author": "Public repo",
@@ -183,7 +183,7 @@
     },
     {
       "author": "Plavio",
-      "description": "JS plug: finds Pixeldrain files for a title through HDHub4u posts and confirms each file through the Pixeldrain API before listing it — from your own connection, so host-side IP fences do not apply.",
+      "description": "JS plug: finds Pixeldrain files for a title through HDHub4u posts and confirms each file through the Pixeldrain API before listing it \u2014 from your own connection, so host-side IP fences do not apply.",
       "enabled": true,
       "filename": "providers/pixeldrain.js",
       "id": "pixeldrain",
@@ -208,7 +208,7 @@
     },
     {
       "author": "MoOnCrOwN",
-      "description": "En yeni filmlleri güvenli ve hızlı şekilde sunar.",
+      "description": "En yeni filmlleri g\u00fcvenli ve h\u0131zl\u0131 \u015fekilde sunar.",
       "enabled": true,
       "filename": "providers/moonvidmodyfilmdizi.js",
       "id": "moonvidmodyfilmdizi",
@@ -221,7 +221,7 @@
     },
     {
       "author": "KennethJYS",
-      "description": "Películas en Latino desde CineCalidad. Vimeos, VOE, StreamWish.",
+      "description": "Pel\u00edculas en Latino desde CineCalidad. Vimeos, VOE, StreamWish.",
       "enabled": true,
       "filename": "providers/cinecalidad.js",
       "id": "cinecalidad",
@@ -258,7 +258,7 @@
     },
     {
       "author": "Gowaru",
-      "description": "Films et séries en streaming HLS via papadustream.club (multi-qualité 360p-1080p, multi-langue).",
+      "description": "Films et s\u00e9ries en streaming HLS via papadustream.club (multi-qualit\u00e9 360p-1080p, multi-langue).",
       "enabled": true,
       "filename": "providers/papadustream.js",
       "id": "papadustream",
@@ -271,7 +271,7 @@
     },
     {
       "author": "Kotlinsyd",
-      "description": "Hindi/Bollywood movies and Hindi-dubbed series via filmnox.com — direct-download MKV files (480p–2160p).",
+      "description": "Hindi/Bollywood movies and Hindi-dubbed series via filmnox.com \u2014 direct-download MKV files (480p\u20132160p).",
       "enabled": true,
       "filename": "providers/filmnox.js",
       "id": "filmnox",
@@ -284,7 +284,7 @@
     },
     {
       "author": "Gowaru",
-      "description": "Films et séries VF/VOSTFR via webflix.art (MP4 directs FastFlux + lecteurs Frembed/Zenix).",
+      "description": "Films et s\u00e9ries VF/VOSTFR via webflix.art (MP4 directs FastFlux + lecteurs Frembed/Zenix).",
       "enabled": true,
       "filename": "providers/webflix.js",
       "id": "webflix",
@@ -297,7 +297,7 @@
     },
     {
       "author": "Kotlinsyd",
-      "description": "Streams from the official 111477 addon (st.111477.xyz), resolved on-device — no server involved.",
+      "description": "Streams from the official 111477 addon (st.111477.xyz), resolved on-device \u2014 no server involved.",
       "enabled": true,
       "filename": "providers/111477.js",
       "id": "111477",
@@ -315,6 +315,32 @@
       "filename": "providers/altadefinizione.js",
       "id": "altadefinizione",
       "name": "Altadefinizione",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Chinese anime (donghua) with multi-language subtitles from DonghuaStream, resolved on-device \u2014 no server involved.",
+      "enabled": true,
+      "filename": "providers/donghuastream.js",
+      "id": "donghuastream",
+      "name": "DonghuaStream",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "author": "Kotlinsyd",
+      "description": "Chinese anime (donghua) with English subtitles from Lucifer Donghua, resolved on-device \u2014 no server involved.",
+      "enabled": true,
+      "filename": "providers/luciferdonghua.js",
+      "id": "luciferdonghua",
+      "name": "LuciferDonghua",
       "supportedTypes": [
         "movie",
         "tv"
